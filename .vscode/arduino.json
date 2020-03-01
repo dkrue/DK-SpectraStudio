@@ -1,0 +1,7 @@
+{
+    "programmer": "USBtinyISP",
+    "board": "adafruit:avr:protrinket5",
+    "sketch": "DK-SpectraStudio.ino",
+    "port": "/dev/cu.usbmodemfd1321",
+    "output": "../bin/spectramoonsun"
+}
