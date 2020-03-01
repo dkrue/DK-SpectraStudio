@@ -2,7 +2,8 @@
 _SpectraStudio_ is a real-time audio visualizer with music-reactive effects. This project features a magnetically mounted light bar with 32 lensed LEDs and two side-mounted speaker displays. The light bar shows a constantly morphing color display with several audio analysis algorithms, and the side LEDs show frequency amplitude.
 
 ![Spectra Studio Visualizer Bar](/images/spectra_studio_top_red.jpg)
-The Spectra Studio project magnetically attached to the top of an iMac screen.
+
+_The Spectra Studio project magnetically attached to the top of an iMac screen._
 
 ## About
 This is one of my _[Spectra](https://github.com/search?q=user%3Adkrue+spectra)_ series audio visualizer projects. This project is not currently available in my
@@ -13,7 +14,7 @@ My main goal with this project was to take my existing Spectra audio analysis pr
 
 ![Spectra Studio Visualizer Bar](/images/spectra_studio_top_blue.jpg)
 
-This project also uses my latest voltage divider circuit that reads audio input voltage in the simplest way possible. You can find more about the circuit in [my blog post: Analyzing line audio input with Arduino](https://dkrue.github.io/arduino/2020/02/09/analyzing_line_audio_input_with_arduino.html)
+This project also uses my latest voltage divider circuit that reads audio input voltage in the simplest way possible. You can find more about the circuit in [my blog post: Analyzing line audio input with Arduino.](https://dkrue.github.io/arduino/2020/02/09/analyzing_line_audio_input_with_arduino.html)
 
 ![Spectra Studio Circuit](/images/spectra_studio_circuit.jpg)
 
@@ -25,7 +26,7 @@ The original inspiration for this is the [Adafruit Piccolo](https://learn.adafru
 ## Ingredients
 This project uses generic Chinese parts available on eBay, aside from the Adafruit Trinket microcontroller.
 
-- About a meter of RGB 5050 LEDs (using 32 LEDs) mounted on an angled wooden strip with magnetic strip
+- About a meter of RGB 5050 LEDs (using 32 LEDs) mounted on an angled wooden strip with magnetic strip backing
 - [10° plastic lenses for SMD 5050 LEDs](https://www.ebay.com/itm/LENS-For-5050-SMD-LEDS-WS2812-WS2811-SK6812-10-30-60-120-140-Degree-Angle/292164704213?ssPageName=STRK%3AMEBIDX%3AIT&var=591105126018&_trksid=p2057872.m2749.l2649)
 - [Adafruit Pro Trinket](https://www.adafruit.com/product/2000)
 - Two 3.5mm headphone jacks and resistors as described in [my blog post: Analyzing line audio input with Arduino](https://dkrue.github.io/arduino/2020/02/09/analyzing_line_audio_input_with_arduino.html)
