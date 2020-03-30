@@ -4,6 +4,11 @@
 #include <Bounce2.h>
 #include <Adafruit_NeoPixel.h>
 
+// NOTE: for all neopixels to work, memory usage can't be much over 1560 bytes of dynamic memory
+#define pixelRingPIN 15 //(pin 15 = A1)
+#define pixelRingCount 24
+Adafruit_NeoPixel pixelRing = Adafruit_NeoPixel(24, 15, NEO_GRB  + NEO_KHZ800);
+
 #define neopixelPIN 5
 #define neopixelCount 31
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(neopixelCount, neopixelPIN, NEO_GRB  + NEO_KHZ800);
@@ -20,9 +25,10 @@ Adafruit_NeoPixel eightpixelsR = Adafruit_NeoPixel(8, eightpixelRightPIN, NEO_GR
 #endif
 
 #define COLUMNS 16
-#define buttonPin 4
-#define buttonLEDPin 3
+#define buttonPin A2
+#define buttonLEDPin A3
 Bounce debouncer = Bounce(); 
+uint8_t buttonMode = 0;
 
 unsigned long previousMillis = 0;
 unsigned long interval = 16000;
@@ -168,12 +174,14 @@ void setup() {
 
   sei(); // Enable interrupts
 
-  // Setup LED button and neopixels
   pinMode(buttonLEDPin, OUTPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
   debouncer.attach(buttonPin);
   debouncer.interval(10);
+
+  pixelRing.setBrightness(25);
+  pixelRing.begin();
 
   pixels.setBrightness(100);
   pixels.begin(); 
@@ -183,9 +191,8 @@ void setup() {
   eightpixelsR.setBrightness(40); // tame neopixel brightness  
   eightpixelsR.begin(); 
 
-  Serial.begin(9600);
   reactiveMode = random(16)+1;
-  eightpixelMode = random(70);
+  eightpixelMode = random(8);
 }
 
 void loop() {
@@ -323,55 +330,31 @@ void loop() {
       previousMillis = millis();
       keyFrame = 0; //not needed?
 
-      Serial.println();
-
-      Serial.print(F("reactiveMode = "));
-      Serial.println(reactiveMode);
-
       reactiveDirection = random(2);
-      Serial.print(F("reactiveDirection = "));
-      Serial.println(reactiveDirection);
-
       reactiveSparkle = random(12);
       if(reactiveSparkle > 4) reactiveSparkle = 0;
-      Serial.print(F("reactiveSparkle = "));
-      Serial.println(reactiveSparkle);
 
       blankingModulo[0] = random(10)+1;
       if(blankingModulo[0] > 8) blankingModulo[0] = 2;
-      Serial.print(F("blankingModulo[0] = "));
-      Serial.println(blankingModulo[0]);  
 
       blankingModulo[1] = random(10)+1;
       if(blankingModulo[1] > 8) blankingModulo[1] = 2;
-      Serial.print(F("blankingModulo[1] = "));
-      Serial.println(blankingModulo[1]);  
 
       blankingModulo[2] = random(10)+1;
       if(blankingModulo[2] > 8) blankingModulo[2] = 3;
-      Serial.print(F("blankingModulo[2] = "));
-      Serial.println(blankingModulo[2]);  
 
       keyForward = random(1);
       keySpeed = random(60 * peak[0] * (blankingModulo[0] > blankingModulo[1] ? blankingModulo[0] : blankingModulo[1]));
       if(keySpeed > 200) keySpeed = 0;      
-      Serial.print(F("keySpeed = "));
-      Serial.println(keySpeed);   
 
       pixelSlew = random(24)+1;
-      Serial.print(F("pixelSlew = "));
-      Serial.println(pixelSlew); 
 
       eightpixelBand = random(24);
       if(eightpixelBand > 15) eightpixelBand = random(1);
-      Serial.print(F("eightpixelBand = "));
-      Serial.println(eightpixelBand);
 
       // one quarter chance of a eightpixel mode changing to a new one, if on
       if(eightpixelMode > 8 || random(4) == 0) {
         eightpixelMode = random(70);
-        Serial.print(F("eightpixelMode = "));
-        Serial.println(eightpixelMode);
       }
     }
   }
@@ -454,6 +437,7 @@ void loop() {
     if(pixelG[c] > 0) pixelG[c]--;
     if(pixelB[c] > 0) pixelB[c]--;
     pixels.setPixelColor(c, pixelR[c], pixelG[c], pixelB[c]);
+    pixelRing.setPixelColor(c, pixelR[c], pixelG[c], pixelB[c]);
 
     // Set next pixel
     if(reactiveSparkle > 1) {
@@ -490,13 +474,13 @@ void loop() {
       keyForward=random(1);
       keySpeed = random(60 * peak[0] * (blankingModulo[0] > blankingModulo[1] ? blankingModulo[0] : blankingModulo[1]));
       if(keySpeed > 200) keySpeed = 0;
-      Serial.println(F("regen"));
     }
   }
   if(blankingModulo[1] > 1) {
     for(c=0; c<neopixelCount; c++) {
       if(c % blankingModulo[1] == 0) { 
         pixels.setPixelColor((c+keyFrame) % neopixelCount, 0, 0, 0);
+        pixelRing.setPixelColor((c+keyFrame) % neopixelCount, 32, 16, 12); // neutral white       
       }
     }
   }  
@@ -504,24 +488,24 @@ void loop() {
     for(c=0; c<neopixelCount; c++) {
       if(c % blankingModulo[2] == 0) {
         pixels.setPixelColor((c+keyFrame) % neopixelCount, 0, 0, 0);
+        pixelRing.setPixelColor((c+keyFrame) % neopixelCount, 32, 16, 12); // neutral white
       }
     }
   } 
 
-  // Neopixel jewel update
   pixels.show();
+  pixelRing.show();
 
   // Update the debounced button state
   debouncer.update();
 
   // Onboard LED button press
   if(debouncer.fell()) {
-    // Toggle neopixels on and off
-    if(reactiveMode == 0) {
-      reactiveMode = 14;
+    if(buttonMode == 0) {
+      buttonMode = 1;
       digitalWrite(buttonLEDPin, HIGH);
     } else {
-      reactiveMode = 0;
+      buttonMode = 0;
       digitalWrite(buttonLEDPin, LOW);
     }
   }
@@ -539,6 +523,7 @@ void setPixel(uint8_t pixel, int8_t red, int8_t green, int8_t blue) {
   pixelB[pixel] -= (pixelB[pixel] - blue) / pixelSlew;
 
   pixels.setPixelColor(pixel, pixelR[pixel], pixelG[pixel], pixelB[pixel]);
+  pixelRing.setPixelColor(pixel, pixelR[pixel], pixelG[pixel], pixelB[pixel]);
 }
 
 void setEightPixel(uint8_t pixel, int8_t red, int8_t green, int8_t blue) {
